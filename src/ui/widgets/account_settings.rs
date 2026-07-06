@@ -1,6 +1,9 @@
 #![allow(deprecated)]
 
-use super::utils::GlobalToast;
+use super::utils::{
+    GlobalToast,
+    translate_widget_tree,
+};
 use crate::{
     client::jellyfin_client::JELLYFIN_CLIENT,
     ui::{
@@ -209,6 +212,7 @@ mod imp {
         fn constructed(&self) {
             self.parent_constructed();
             let obj = self.obj();
+            obj.localize_template();
             obj.set_sidebar();
             obj.set_picopactiy();
             obj.set_pic();
@@ -237,6 +241,51 @@ glib::wrapper! {
 impl AccountSettings {
     pub fn new(window: crate::Window) -> Self {
         glib::Object::builder().property("window", window).build()
+    }
+
+    fn localize_template(&self) {
+        let imp = self.imp();
+        translate_widget_tree(self);
+
+        imp.app_language_comborow
+            .set_model(Some(&translated_string_list(&[
+                "Follow System",
+                "English",
+                "简体中文",
+                "繁體中文",
+                "日本語",
+                "Français",
+                "Deutsch",
+                "Português do Brasil",
+                "Русский",
+                "اَلْعَرَبِيَّةُ",
+            ])));
+        imp.preferred_audio_language_comborow
+            .set_model(Some(&translated_string_list(&[
+                "Default",
+                "English",
+                "简体中文",
+                "日本語",
+                "繁體中文",
+                "اَلْعَرَبِيَّةُ",
+                "Norwegian Bokmål",
+                "Portuguese",
+                "Français",
+                "Русский",
+            ])));
+        imp.preferred_subtitle_language_comborow
+            .set_model(Some(&translated_string_list(&[
+                "Default",
+                "English",
+                "简体中文",
+                "日本語",
+                "繁體中文",
+                "اَلْعَرَبِيَّةُ",
+                "Norwegian Bokmål",
+                "Portuguese",
+                "Français",
+                "Русский",
+            ])));
     }
 
     #[template_callback]
@@ -831,4 +880,8 @@ impl AccountSettings {
             group.append(&row);
         }
     }
+}
+
+fn translated_string_list(items: &[&str]) -> gtk::StringList {
+    items.iter().map(|item| gettext(*item)).collect()
 }

@@ -1,5 +1,7 @@
+use gettextrs::gettext;
 use gtk::{
     SignalListItemFactory,
+    glib,
     prelude::*,
 };
 
@@ -67,6 +69,76 @@ impl TuItemBuildExt for SignalListItemFactory {
                 .bind(&tu_item, "item", gtk::Widget::NONE);
         });
         self
+    }
+}
+
+const TRANSLATABLE_TEXT_PROPERTIES: &[&str] = &[
+    "title",
+    "subtitle",
+    "label",
+    "placeholder-text",
+    "tooltip-text",
+    "description",
+];
+
+pub fn translate_widget_tree(root: &impl IsA<gtk::Widget>) {
+    let root = root.as_ref();
+    translate_object_text(root.upcast_ref());
+
+    let mut child = root.first_child();
+    while let Some(widget) = child {
+        translate_widget_tree(&widget);
+        child = widget.next_sibling();
+    }
+}
+
+pub fn translate_sidebar_section(section: &adw::SidebarSection) {
+    translate_object_text(section.upcast_ref());
+
+    for index in 0..section.items().n_items() {
+        if let Some(item) = section.item(index) {
+            translate_sidebar_item(&item);
+        }
+    }
+}
+
+pub fn translate_sidebar_item(item: &adw::SidebarItem) {
+    translate_object_text(item.upcast_ref());
+}
+
+fn translate_object_text(object: &glib::Object) {
+    for property in TRANSLATABLE_TEXT_PROPERTIES {
+        translate_text_property(object, property);
+    }
+}
+
+fn translate_text_property(object: &glib::Object, property: &str) {
+    let Some(spec) = object.find_property(property) else {
+        return;
+    };
+
+    if spec.value_type() != String::static_type()
+        || !spec.flags().contains(glib::ParamFlags::WRITABLE)
+    {
+        return;
+    }
+
+    let value = object.property_value(property);
+    let text = match value.get::<String>() {
+        Ok(text) => text,
+        Err(_) => match value.get::<Option<String>>() {
+            Ok(Some(text)) => text,
+            _ => return,
+        },
+    };
+
+    if text.is_empty() {
+        return;
+    }
+
+    let translated = gettext(&text);
+    if translated != text {
+        object.set_property(property, translated.as_str());
     }
 }
 

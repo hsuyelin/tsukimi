@@ -200,6 +200,7 @@ mod imp {
                 .set_show_start_title_buttons(false);
 
             let obj = self.obj();
+            obj.localize_template();
 
             self.sidebar_breakpoint.connect_apply(glib::clone!(
                 #[weak]
@@ -262,7 +263,12 @@ use super::{
     server_action_row,
     server_panel::ServerPanel,
     tu_item::PROGRESSBAR_ANIMATION_DURATION,
-    utils::GlobalToast,
+    utils::{
+        GlobalToast,
+        translate_sidebar_item,
+        translate_sidebar_section,
+        translate_widget_tree,
+    },
 };
 use crate::{
     APP_ID,
@@ -305,7 +311,9 @@ impl Window {
     pub fn homepage(&self) {
         let imp = self.imp();
         if imp.homepage.child().is_none() {
-            imp.homepage.set_child(Some(&HomePage::new()));
+            let page = HomePage::new();
+            translate_widget_tree(&page);
+            imp.homepage.set_child(Some(&page));
         }
         imp.navipage.set_title(&gettext("Home"));
         imp.mainview.pop_to_tag("mainpage");
@@ -317,7 +325,9 @@ impl Window {
     pub fn likedpage(&self) {
         let imp = self.imp();
         if imp.likedpage.child().is_none() {
-            imp.likedpage.set_child(Some(&LikedPage::new()));
+            let page = LikedPage::new();
+            translate_widget_tree(&page);
+            imp.likedpage.set_child(Some(&page));
         }
         imp.navipage.set_title(&gettext("Liked"));
         imp.mainview.pop_to_tag("mainpage");
@@ -329,7 +339,9 @@ impl Window {
     pub fn searchpage(&self) {
         let imp = self.imp();
         if imp.searchpage.child().is_none() {
-            imp.searchpage.set_child(Some(&SearchPage::new()));
+            let page = SearchPage::new();
+            translate_widget_tree(&page);
+            imp.searchpage.set_child(Some(&page));
         }
         imp.navipage.set_title(&gettext("Search"));
         imp.mainview.pop_to_tag("mainpage");
@@ -466,6 +478,7 @@ impl Window {
     pub fn set_nav_servers(&self) {
         let imp = self.imp();
         imp.servers_section.remove_all();
+        translate_sidebar_section(&imp.servers_section);
         let accounts = SETTINGS.accounts();
         for account in accounts {
             let item = adw::SidebarItem::new(&account.servername);
@@ -608,6 +621,27 @@ impl Window {
 
     pub fn add_toast(&self, toast: adw::Toast) {
         self.imp().toast.add_toast(toast);
+    }
+
+    fn localize_template(&self) {
+        let imp = self.imp();
+        translate_widget_tree(self);
+
+        let items = imp.selectlist.items();
+        for index in 0..items.n_items() {
+            let Some(object) = items.item(index) else {
+                continue;
+            };
+            let Ok(item) = object.downcast::<adw::SidebarItem>() else {
+                continue;
+            };
+            translate_sidebar_item(&item);
+            if let Some(section) = item.section() {
+                translate_sidebar_section(&section);
+            }
+        }
+
+        translate_sidebar_section(&imp.servers_section);
     }
 
     pub fn current_view_name(&self) -> String {
