@@ -665,7 +665,7 @@ impl TuItem {
     pub fn fmt_title(&self) -> String {
         match self.item_type().as_str() {
             TV_CHANNEL => self.fmt_tv_name(),
-            EPISODE if let Some(series_name) = self.series_name() => series_name,
+            EPISODE => self.series_name().unwrap_or_else(|| self.name()),
             _ => self.name(),
         }
     }

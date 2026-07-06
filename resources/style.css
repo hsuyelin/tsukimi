@@ -87,6 +87,10 @@ button.pill.ultrasmall {
   padding: 18px 20px 42px;
 }
 
+.macos-mpv-top-bar {
+  padding-top: 30px;
+}
+
 .mpv-bottom-bar {
   background-image: linear-gradient(to top,
       rgba(0, 0, 0, 0.78),

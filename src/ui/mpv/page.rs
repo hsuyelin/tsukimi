@@ -22,7 +22,6 @@ use super::{
         MPV_EVENT_CHANNEL,
         MpvTrack,
         MpvTracks,
-        PAUSED,
         TrackSelection,
         TsukimiMPV,
     },
@@ -133,6 +132,8 @@ mod imp {
         RefCell,
     };
 
+    #[cfg(target_os = "linux")]
+    use crate::APP_ID;
     use adw::prelude::*;
     use gettextrs::gettext;
     use glib::subclass::InitializingObject;
@@ -144,10 +145,10 @@ mod imp {
     };
     #[cfg(target_os = "linux")]
     use mpris_server::LocalServer;
+    #[cfg(target_os = "linux")]
     use once_cell::sync::OnceCell;
 
     use crate::{
-        APP_ID,
         client::structs::{
             Back,
             MediaSegment,
@@ -180,6 +181,8 @@ mod imp {
         pub bottom_revealer: TemplateChild<gtk::Revealer>,
         #[template_child]
         pub top_revealer: TemplateChild<gtk::Revealer>,
+        #[template_child]
+        pub top_header_bar: TemplateChild<adw::HeaderBar>,
         #[template_child]
         pub play_pause_image: TemplateChild<gtk::Image>,
         #[template_child]
@@ -352,6 +355,7 @@ mod imp {
 
             let obj = self.obj();
 
+            obj.configure_macos_header_bar();
             obj.set_popover();
 
             obj.connect_root_notify(|obj| {
@@ -435,6 +439,16 @@ impl Default for MPVPage {
 impl MPVPage {
     pub fn new() -> Self {
         Object::new()
+    }
+
+    fn configure_macos_header_bar(&self) {
+        #[cfg(target_os = "macos")]
+        {
+            let header_bar = self.imp().top_header_bar.get();
+            header_bar.set_show_start_title_buttons(false);
+            header_bar.set_show_end_title_buttons(false);
+            header_bar.add_css_class("macos-mpv-top-bar");
+        }
     }
 
     fn mark_stream_failed(&self) {
@@ -1367,11 +1381,7 @@ impl MPVPage {
         self.reset_skippable_segments();
         let current_video = self.current_video();
 
-        let mpv = self.mpv();
-        mpv.pause(true);
-        mpv.stop();
-        mpv.event_thread_alive
-            .store(PAUSED, std::sync::atomic::Ordering::SeqCst);
+        self.imp().video.release_resources();
         let root = self.root();
         let window = root
             .and_downcast_ref::<crate::ui::widgets::window::Window>()
@@ -1564,7 +1574,9 @@ impl MPVPage {
         self.notify_mpris_paused();
     }
 
-    pub fn notify_volume_changed(&self, volume: f64) {
+    pub fn notify_volume_changed(
+        &self, #[cfg_attr(not(target_os = "linux"), allow(unused_variables))] volume: f64,
+    ) {
         #[cfg(target_os = "linux")]
         self.notify_mpris_volume(volume);
     }
@@ -1574,7 +1586,9 @@ impl MPVPage {
         self.notify_mpris_stopped();
     }
 
-    pub fn notify_seeked(&self, position: i64) {
+    pub fn notify_seeked(
+        &self, #[cfg_attr(not(target_os = "linux"), allow(unused_variables))] position: i64,
+    ) {
         #[cfg(target_os = "linux")]
         self.notify_mpris_seeked(position);
     }

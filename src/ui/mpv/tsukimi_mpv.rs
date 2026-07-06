@@ -88,6 +88,9 @@ impl Default for TsukimiMPV {
         });
 
         let mpv = Mpv::with_initializer(|init| {
+            #[cfg(target_os = "macos")]
+            init.set_property("media-controls", false)?;
+
             if SETTINGS.mpv_config() {
                 init.set_property("config", true)?;
                 init.set_property("config-dir", SETTINGS.mpv_config_dir())?;
@@ -97,16 +100,9 @@ impl Default for TsukimiMPV {
             init.set_property("user-agent", crate::USER_AGENT.as_str())?;
             init.set_property("video-timing-offset", 0)?;
             init.set_property("video-sync", "audio")?;
-            match SETTINGS.mpv_video_output() {
-                0 => {
-                    init.set_property("vo", "libmpv")?;
-                    init.set_property("osc", false)?;
-                    init.set_property("osd-level", 0)?;
-                }
-                1 => init.set_property("vo", "gpu-next")?,
-                2 => init.set_property("vo", "dmabuf-wayland")?,
-                _ => unreachable!(),
-            }
+            init.set_property("vo", selected_video_output())?;
+            init.set_property("osc", false)?;
+            init.set_property("osd-level", 0)?;
             init.set_property(
                 "demuxer-max-bytes",
                 format!("{}MiB", SETTINGS.mpv_cache_size()),
@@ -209,7 +205,17 @@ pub static MPV_EVENT_CHANNEL: Lazy<MPVEventChannel> = Lazy::new(|| {
     MPVEventChannel { tx, rx }
 });
 
+static GPU_NEXT_SUPPORTED: Lazy<bool> = Lazy::new(detect_gpu_next_support);
+
+pub fn gpu_next_supported() -> bool {
+    *GPU_NEXT_SUPPORTED
+}
+
 impl TsukimiMPV {
+    pub fn uses_libmpv_render_api(&self) -> bool {
+        selected_video_output() == "libmpv"
+    }
+
     pub fn set_position(&self, value: f64) {
         self.set_property("time-pos", value);
     }
@@ -343,6 +349,10 @@ impl TsukimiMPV {
     }
 
     pub fn process_events(&self) {
+        if self.event_handle.borrow().is_some() {
+            return;
+        }
+
         let mpv = Arc::clone(&self.mpv);
         let mut event_context = EventContext::new(mpv.ctx);
         event_context
@@ -588,6 +598,51 @@ fn get_full_keystr(key: u32, state: gtk::gdk::ModifierType) -> Option<String> {
         return Some(format!("{modstr}{keystr}"));
     }
     None
+}
+
+fn selected_video_output() -> &'static str {
+    let requested = SETTINGS.mpv_video_output();
+    if requested == 1 && !gpu_next_supported() {
+        let _ = SETTINGS.set_mpv_video_output(0);
+        return "libmpv";
+    }
+
+    #[cfg(target_os = "macos")]
+    match requested {
+        1 => "gpu-next",
+        _ => "libmpv",
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    match requested {
+        0 => "libmpv",
+        1 => "gpu-next",
+        2 => "dmabuf-wayland",
+        _ => "libmpv",
+    }
+}
+
+fn detect_gpu_next_support() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        true
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    let result = Mpv::with_initializer(|init| {
+        init.set_property("config", false)?;
+        init.set_property("vo", "gpu-next")?;
+        Ok(())
+    });
+
+    #[cfg(not(target_os = "macos"))]
+    match result {
+        Ok(_) => true,
+        Err(error) => {
+            warn!("mpv gpu-next is not available: {error}");
+            false
+        }
+    }
 }
 
 fn get_modstr(state: gtk::gdk::ModifierType) -> String {

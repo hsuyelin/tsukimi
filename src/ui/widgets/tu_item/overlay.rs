@@ -50,10 +50,18 @@ pub trait TuItemOverlayPrelude {
                 }
             }
             // Latest, use parent primary image if possible, this is for latest episodes
-            PreferPoster::ParentPost
-                if let Some(parent_backdrop_item_id) = item.parent_backdrop_item_id() =>
-            {
-                ("Primary", None, parent_backdrop_item_id)
+            PreferPoster::ParentPost => {
+                if let Some(parent_backdrop_item_id) = item.parent_backdrop_item_id() {
+                    ("Primary", None, parent_backdrop_item_id)
+                } else if let Some(img_tags) = item.primary_image_item_id() {
+                    ("Primary", None, img_tags)
+                } else if item.image_tags().is_none_or(|t| t.all_none())
+                    && let Some(parent_backdrop_item_id) = item.parent_backdrop_item_id()
+                {
+                    ("Primary", None, parent_backdrop_item_id)
+                } else {
+                    ("Primary", None, item.id())
+                }
             }
             _ => {
                 if let Some(img_tags) = item.primary_image_item_id() {
