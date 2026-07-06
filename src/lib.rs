@@ -44,6 +44,7 @@ pub static USER_AGENT: LazyLock<String> =
 pub const APP_ID: &str = "moe.tsuna.tsukimi";
 pub const CLIENT_ID: &str = "Tsukimi";
 const APP_RESOURCE_PATH: &str = "/moe/tsuna/tsukimi";
+const ICON_RESOURCE_PATH: &str = "/moe/tsuna/tsukimi/icons";
 const GRESOURCE_FILE: &str = "tsukimi.gresource";
 
 pub fn locale_dir() -> PathBuf {
@@ -57,6 +58,7 @@ pub fn run() -> gtk::glib::ExitCode {
 
     adw::init().expect("Failed to initialize Adwaita");
     register_gio_resources();
+    register_icon_theme_resources();
 
     widgets::init();
 
@@ -128,6 +130,14 @@ fn register_gio_resources() {
     let path = pkg_data_dir().join(GRESOURCE_FILE);
     let resources = gtk::gio::Resource::load(path).expect("Failed to load resources.");
     gtk::gio::resources_register(&resources);
+}
+
+fn register_icon_theme_resources() {
+    let Some(display) = gtk::gdk::Display::default() else {
+        return;
+    };
+
+    gtk::IconTheme::for_display(&display).add_resource_path(ICON_RESOURCE_PATH);
 }
 
 fn pkg_data_dir() -> PathBuf {

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
+  <gresource prefix="/moe/tsuna/tsukimi/icons/scalable/apps/">
+    <file preprocess="xml-stripblanks" alias="moe.tsuna.tsukimi.svg">icons/moe.tsuna.tsukimi.svg</file>
+  </gresource>
   <gresource prefix="/moe/tsuna/tsukimi/icons/scalable/actions/">
     <file alias="tsukimi">icons/moe.tsuna.tsukimi.svg</file>
     <file preprocess="xml-stripblanks" alias="settings-symbolic.svg">icons/scalable/actions/settings-symbolic.svg</file>
