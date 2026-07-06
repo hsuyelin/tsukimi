@@ -183,6 +183,16 @@ impl TuViewScrolled {
         }
     }
 
+    pub fn clear_store(&self) {
+        let imp = self.imp();
+        let Some(store) = imp.selection.model().and_downcast::<gio::ListStore>() else {
+            return;
+        };
+
+        store.remove_all();
+        self.reveal_spinner(false);
+    }
+
     pub fn set_view_type(&self, view_type: ViewType) {
         let imp = self.imp();
         let factory = SignalListItemFactory::new();

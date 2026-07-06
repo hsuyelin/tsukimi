@@ -126,7 +126,9 @@ mod imp {
 
                             let search_results = obj.get_search_results::<true>().await;
 
-                            scrolled.set_store::<false>(search_results.items);
+                            scrolled.set_store::<false>(super::displayable_search_items(
+                                search_results.items,
+                            ));
 
                             scrolled.reveal_spinner(false);
 
@@ -236,13 +238,17 @@ impl SearchPage {
         let imp = self.imp();
 
         let search_results = self.get_search_results::<false>().await;
+        let items = displayable_search_items(search_results.items);
 
-        if search_results.items.is_empty() {
+        if items.is_empty() {
+            imp.searchscrolled.clear_store();
+            imp.searchscrolled.set_visible(false);
             imp.stack.set_visible_child_name("fallback");
             return;
         };
 
-        imp.searchscrolled.set_store::<true>(search_results.items);
+        imp.searchscrolled.set_store::<true>(items);
+        imp.searchscrolled.set_visible(true);
 
         imp.stack.set_visible_child_name("result");
     }
@@ -288,7 +294,8 @@ impl SearchPage {
         let n_items = if F {
             imp.searchscrolled.n_items()
         } else {
-            imp.searchscrolled.set_store::<true>(Vec::new());
+            imp.searchscrolled.clear_store();
+            imp.searchscrolled.set_visible(false);
             imp.stack.set_visible_child_name("loading");
             0
         };
@@ -353,4 +360,15 @@ impl SearchPage {
             }
         ));
     }
+}
+
+fn displayable_search_items(items: Vec<SimpleListItem>) -> Vec<SimpleListItem> {
+    items
+        .into_iter()
+        .filter(|item| {
+            !item.id.trim().is_empty()
+                && !item.name.trim().is_empty()
+                && !item.item_type.trim().is_empty()
+        })
+        .collect()
 }
