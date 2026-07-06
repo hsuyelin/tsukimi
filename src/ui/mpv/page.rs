@@ -5,7 +5,6 @@ use adw::prelude::*;
 use gettextrs::gettext;
 use glib::Object;
 use gtk::{
-    Builder,
     PopoverMenu,
     gdk::Rectangle,
     gio,
@@ -54,6 +53,10 @@ use crate::{
                 make_video_version_choice_from_matcher,
             },
             song_widget::format_duration,
+            utils::{
+                translated_builder_from_resource,
+                translated_menu_model,
+            },
             window::Window,
         },
     },
@@ -1518,8 +1521,14 @@ impl MPVPage {
 
     pub fn set_popover(&self) {
         let imp = self.imp();
-        let builder = Builder::from_resource("/moe/tsuna/tsukimi/ui/mpv_menu.ui");
-        let menu = builder.object::<gio::MenuModel>("mpv-menu");
+        let Ok(builder) = translated_builder_from_resource("/moe/tsuna/tsukimi/ui/mpv_menu.ui")
+        else {
+            eprintln!("Failed to load popover");
+            return;
+        };
+        let menu = builder
+            .object::<gio::MenuModel>("mpv-menu")
+            .map(|menu| translated_menu_model(&menu));
         match menu {
             Some(popover) => {
                 let popover = PopoverMenu::builder()

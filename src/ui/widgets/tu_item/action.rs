@@ -9,6 +9,10 @@ use crate::{
         widgets::{
             menu_info::MenuInfo,
             missing_episodes_dialog::MissingEpisodesDialog,
+            utils::{
+                translated_builder_from_resource,
+                translated_menu_model,
+            },
             window::Window,
         },
     },
@@ -24,7 +28,6 @@ use super::prelude::TuItemMenuPrelude;
 use adw::prelude::AlertDialogExt;
 use gettextrs::gettext;
 use gtk::{
-    Builder,
     PopoverMenu,
     gdk::Rectangle,
     gio::{
@@ -150,8 +153,15 @@ where
             #[weak(rename_to = obj)]
             self,
             move |gesture, _n, x, y| {
-                let builder = Builder::from_resource("/moe/tsuna/tsukimi/ui/pop-menu.ui");
-                let menu = builder.object::<MenuModel>("rightmenu");
+                let Ok(builder) =
+                    translated_builder_from_resource("/moe/tsuna/tsukimi/ui/pop-menu.ui")
+                else {
+                    eprintln!("Failed to load popover");
+                    return;
+                };
+                let menu = builder
+                    .object::<MenuModel>("rightmenu")
+                    .map(|menu| translated_menu_model(&menu));
                 match menu {
                     Some(popover) => {
                         let new_popover = PopoverMenu::builder()

@@ -1,6 +1,8 @@
 use gettextrs::gettext;
 use gtk::{
+    Builder,
     SignalListItemFactory,
+    gio,
     glib,
     prelude::*,
 };
@@ -104,6 +106,49 @@ pub fn translate_sidebar_section(section: &adw::SidebarSection) {
 
 pub fn translate_sidebar_item(item: &adw::SidebarItem) {
     translate_object_text(item.upcast_ref());
+}
+
+pub fn translated_builder_from_resource(resource_path: &str) -> Result<Builder, glib::Error> {
+    let builder = Builder::new();
+    builder.set_translation_domain(Some(crate::GETTEXT_PACKAGE));
+    builder.add_from_resource(resource_path)?;
+    Ok(builder)
+}
+
+pub fn translated_menu_model(model: &impl IsA<gio::MenuModel>) -> gio::Menu {
+    let translated_menu = gio::Menu::new();
+    let model = model.as_ref();
+
+    for index in 0..model.n_items() {
+        let item = gio::MenuItem::from_model(model, index);
+        translate_menu_item_label(&item);
+        translate_menu_item_link(&item, gio::MENU_LINK_SECTION);
+        translate_menu_item_link(&item, gio::MENU_LINK_SUBMENU);
+        translated_menu.append_item(&item);
+    }
+
+    translated_menu.freeze();
+    translated_menu
+}
+
+fn translate_menu_item_label(item: &gio::MenuItem) {
+    let Some(label) = item
+        .attribute_value(gio::MENU_ATTRIBUTE_LABEL, None)
+        .and_then(|label| label.get::<String>())
+    else {
+        return;
+    };
+
+    item.set_label(Some(&gettext(&label)));
+}
+
+fn translate_menu_item_link(item: &gio::MenuItem, link_name: &str) {
+    let Some(link) = item.link(link_name) else {
+        return;
+    };
+
+    let translated_link = translated_menu_model(&link);
+    item.set_link(link_name, Some(&translated_link));
 }
 
 fn translate_object_text(object: &glib::Object) {
