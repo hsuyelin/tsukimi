@@ -180,6 +180,13 @@ impl SearchPage {
     }
 
     pub async fn setup_recommend(&self) {
+        let imp = self.imp();
+        if !JELLYFIN_CLIENT.is_jellyfin() {
+            imp.recommend_group.remove_all();
+            imp.stack.set_visible_child_name("fallback");
+            return;
+        }
+
         let recommend =
             match spawn_tokio(async { JELLYFIN_CLIENT.get_search_recommend().await }).await {
                 Ok(list) => list,
@@ -189,7 +196,6 @@ impl SearchPage {
                 }
             };
 
-        let imp = self.imp();
         imp.recommend_group.remove_all();
 
         for item in recommend.items {
