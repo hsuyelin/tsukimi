@@ -64,6 +64,8 @@ mod imp {
         #[template_child]
         pub split_view: TemplateChild<adw::OverlaySplitView>,
         #[template_child]
+        pub main_sidebar_header_bar: TemplateChild<adw::HeaderBar>,
+        #[template_child]
         pub navipage: TemplateChild<adw::NavigationPage>,
         #[template_child]
         pub toast: TemplateChild<adw::ToastOverlay>,
@@ -192,6 +194,10 @@ mod imp {
             ));
             self.mpv_control_sidebar
                 .set_player(Some(&self.mpvnav.imp().video.get()));
+
+            #[cfg(not(target_os = "macos"))]
+            self.main_sidebar_header_bar
+                .set_show_start_title_buttons(false);
 
             let obj = self.obj();
 
@@ -546,16 +552,23 @@ impl Window {
     pub fn load_window_state(&self) {
         let (width, height) = SETTINGS.window_dismension();
         self.set_default_size(width, height);
-
-        if SETTINGS.is_maximized() {
-            self.maximize();
-        }
-
-        if SETTINGS.is_fullscreen() {
-            self.fullscreen();
-        }
-
         self.overlay_sidebar(SETTINGS.is_overlay());
+
+        let should_maximize = SETTINGS.is_maximized();
+        let should_fullscreen = SETTINGS.is_fullscreen();
+        glib::idle_add_local_once(glib::clone!(
+            #[weak(rename_to = obj)]
+            self,
+            move || {
+                if should_maximize {
+                    obj.maximize();
+                }
+
+                if should_fullscreen {
+                    obj.fullscreen();
+                }
+            }
+        ));
     }
 
     pub fn new(app: &crate::Application) -> Self {
