@@ -531,6 +531,49 @@ msgstr ""
 msgid "Follow System"
 msgstr ""
 
+#: src/ui/widgets/account_settings.rs:253 src/ui/widgets/account_settings.rs:266
+#: src/ui/widgets/account_settings.rs:279
+msgid "English"
+msgstr ""
+
+#: src/ui/widgets/account_settings.rs:254 src/ui/widgets/account_settings.rs:267
+#: src/ui/widgets/account_settings.rs:280
+msgid "简体中文"
+msgstr ""
+
+#: src/ui/widgets/account_settings.rs:255 src/ui/widgets/account_settings.rs:269
+#: src/ui/widgets/account_settings.rs:282
+msgid "繁體中文"
+msgstr ""
+
+#: src/ui/widgets/account_settings.rs:256 src/ui/widgets/account_settings.rs:268
+#: src/ui/widgets/account_settings.rs:281
+msgid "日本語"
+msgstr ""
+
+#: src/ui/widgets/account_settings.rs:257 src/ui/widgets/account_settings.rs:273
+#: src/ui/widgets/account_settings.rs:286
+msgid "Français"
+msgstr ""
+
+#: src/ui/widgets/account_settings.rs:258
+msgid "Deutsch"
+msgstr ""
+
+#: src/ui/widgets/account_settings.rs:259
+msgid "Português do Brasil"
+msgstr ""
+
+#: src/ui/widgets/account_settings.rs:260 src/ui/widgets/account_settings.rs:274
+#: src/ui/widgets/account_settings.rs:287
+msgid "Русский"
+msgstr ""
+
+#: src/ui/widgets/account_settings.rs:261 src/ui/widgets/account_settings.rs:270
+#: src/ui/widgets/account_settings.rs:283
+msgid "اَلْعَرَبِيَّةُ"
+msgstr ""
+
 #: resources/ui/account_settings.ui:48
 msgid "Preferred Audio Language"
 msgstr ""
@@ -538,6 +581,14 @@ msgstr ""
 #: resources/ui/account_settings.ui:30 resources/ui/account_settings.ui:56
 #: resources/ui/account_settings.ui:201
 msgid "Default"
+msgstr ""
+
+#: src/ui/widgets/account_settings.rs:271 src/ui/widgets/account_settings.rs:284
+msgid "Norwegian Bokmål"
+msgstr ""
+
+#: src/ui/widgets/account_settings.rs:272 src/ui/widgets/account_settings.rs:285
+msgid "Portuguese"
 msgstr ""
 
 #: resources/ui/account_settings.ui:47
@@ -719,6 +770,14 @@ msgstr ""
 
 #: resources/ui/account_settings.ui:405
 msgid "libmpv (default)"
+msgstr ""
+
+#: src/ui/widgets/account_settings.rs:578
+msgid "Not supported by the embedded renderer."
+msgstr ""
+
+#: src/ui/widgets/account_settings.rs:580
+msgid "Not supported by the bundled mpv."
 msgstr ""
 
 #: resources/ui/account_settings.ui:450

@@ -565,6 +565,49 @@ msgstr "重启 Tsukimi 以应用所选语言"
 msgid "Follow System"
 msgstr "跟随系统"
 
+#: src/ui/widgets/account_settings.rs:253 src/ui/widgets/account_settings.rs:266
+#: src/ui/widgets/account_settings.rs:279
+msgid "English"
+msgstr "英语"
+
+#: src/ui/widgets/account_settings.rs:254 src/ui/widgets/account_settings.rs:267
+#: src/ui/widgets/account_settings.rs:280
+msgid "简体中文"
+msgstr "简体中文"
+
+#: src/ui/widgets/account_settings.rs:255 src/ui/widgets/account_settings.rs:269
+#: src/ui/widgets/account_settings.rs:282
+msgid "繁體中文"
+msgstr "繁体中文"
+
+#: src/ui/widgets/account_settings.rs:256 src/ui/widgets/account_settings.rs:268
+#: src/ui/widgets/account_settings.rs:281
+msgid "日本語"
+msgstr "日语"
+
+#: src/ui/widgets/account_settings.rs:257 src/ui/widgets/account_settings.rs:273
+#: src/ui/widgets/account_settings.rs:286
+msgid "Français"
+msgstr "法语"
+
+#: src/ui/widgets/account_settings.rs:258
+msgid "Deutsch"
+msgstr "德语"
+
+#: src/ui/widgets/account_settings.rs:259
+msgid "Português do Brasil"
+msgstr "巴西葡萄牙语"
+
+#: src/ui/widgets/account_settings.rs:260 src/ui/widgets/account_settings.rs:274
+#: src/ui/widgets/account_settings.rs:287
+msgid "Русский"
+msgstr "俄语"
+
+#: src/ui/widgets/account_settings.rs:261 src/ui/widgets/account_settings.rs:270
+#: src/ui/widgets/account_settings.rs:283
+msgid "اَلْعَرَبِيَّةُ"
+msgstr "阿拉伯语"
+
 #: resources/ui/account_settings.ui:48
 msgid "Preferred Audio Language"
 msgstr "首选音频语言"
@@ -573,6 +616,14 @@ msgstr "首选音频语言"
 #: resources/ui/account_settings.ui:201
 msgid "Default"
 msgstr "默认"
+
+#: src/ui/widgets/account_settings.rs:271 src/ui/widgets/account_settings.rs:284
+msgid "Norwegian Bokmål"
+msgstr "挪威博克马尔语"
+
+#: src/ui/widgets/account_settings.rs:272 src/ui/widgets/account_settings.rs:285
+msgid "Portuguese"
+msgstr "葡萄牙语"
 
 #: resources/ui/account_settings.ui:47
 msgid "Preferred Subtitle Language"
@@ -754,6 +805,14 @@ msgstr "仅用于调试"
 #: resources/ui/account_settings.ui:405
 msgid "libmpv (default)"
 msgstr "libmpv (默认)"
+
+#: src/ui/widgets/account_settings.rs:578
+msgid "Not supported by the embedded renderer."
+msgstr "当前嵌入式渲染器不支持。"
+
+#: src/ui/widgets/account_settings.rs:580
+msgid "Not supported by the bundled mpv."
+msgstr "内置 mpv 不支持。"
 
 #: resources/ui/account_settings.ui:450
 msgid "Preferred Version"
