@@ -8,6 +8,7 @@ use crate::{
             SETTINGS,
             jellyfin_cache_path,
         },
+        mpv::tsukimi_mpv::gpu_next_supported,
         provider::descriptor::{
             Descriptor,
             DescriptorType,
@@ -88,7 +89,15 @@ mod imp {
         pub color: TemplateChild<gtk::ColorDialogButton>,
         #[template_child]
         pub config_switchrow: TemplateChild<adw::SwitchRow>,
+        #[template_child]
+        pub vo_gpu_next_row: TemplateChild<adw::ActionRow>,
+        #[template_child]
+        pub vo_gpu_next_button: TemplateChild<gtk::CheckButton>,
+        #[template_child]
+        pub vo_dmabuf_wayland_row: TemplateChild<adw::ActionRow>,
 
+        #[template_child]
+        pub app_language_comborow: TemplateChild<adw::ComboRow>,
         #[template_child]
         pub preferred_audio_language_comborow: TemplateChild<adw::ComboRow>,
         #[template_child]
@@ -204,6 +213,7 @@ mod imp {
             obj.set_picopactiy();
             obj.set_pic();
             obj.set_color();
+            obj.configure_video_output_options();
             obj.bind_settings();
             obj.refersh_descriptors();
         }
@@ -363,6 +373,17 @@ impl AccountSettings {
         SETTINGS
             .bind("mpv-config", &imp.config_switchrow.get(), "active")
             .build();
+        imp.app_language_comborow
+            .set_selected(SETTINGS.app_language().clamp(0, 9) as u32);
+        imp.app_language_comborow
+            .connect_selected_notify(glib::clone!(
+                #[weak(rename_to = obj)]
+                self,
+                move |comborow| {
+                    let _ = SETTINGS.set_app_language(comborow.selected() as i32);
+                    obj.toast(gettext("Restart Tsukimi to apply the selected language."));
+                }
+            ));
         SETTINGS
             .bind(
                 "mpv-audio-preferred-lang",
@@ -435,6 +456,11 @@ impl AccountSettings {
                     .expect("Could not get parameter.")
                     .get::<i32>()
                     .expect("The variant needs to be of type `i32`.");
+                let parameter = if parameter == 1 && !gpu_next_supported() {
+                    0
+                } else {
+                    parameter
+                };
 
                 let _ = SETTINGS.set_mpv_video_output(parameter);
 
@@ -471,6 +497,36 @@ impl AccountSettings {
                 obj.imp().avatar.set_custom_image(Some(&texture));
             }
         ));
+    }
+
+    fn configure_video_output_options(&self) {
+        let imp = self.imp();
+
+        #[cfg(target_os = "macos")]
+        {
+            imp.vo_dmabuf_wayland_row.set_visible(false);
+            imp.vo_gpu_next_row.set_visible(true);
+            if SETTINGS.mpv_video_output() == 2 || !gpu_next_supported() {
+                let _ = SETTINGS.set_mpv_video_output(0);
+            }
+        }
+
+        #[cfg(not(target_os = "macos"))]
+        {
+            imp.vo_gpu_next_row.set_visible(true);
+            imp.vo_dmabuf_wayland_row.set_visible(true);
+        }
+
+        let supports_gpu_next = gpu_next_supported();
+        imp.vo_gpu_next_row.set_sensitive(supports_gpu_next);
+        imp.vo_gpu_next_button.set_sensitive(supports_gpu_next);
+        if !supports_gpu_next {
+            imp.vo_gpu_next_row
+                .set_subtitle(&gettext("Not supported by the bundled mpv."));
+            if SETTINGS.mpv_video_output() == 1 {
+                let _ = SETTINGS.set_mpv_video_output(0);
+            }
+        }
     }
 
     #[template_callback]

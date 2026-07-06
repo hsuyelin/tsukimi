@@ -33,6 +33,7 @@ impl Settings {
     const KEY_LIST_SORT_ORDER: &'static str = "list-sort-order";
     const KEY_ACCENT_COLOR_CODE: &'static str = "accent-color-code";
     const KEY_USE_CUSTOM_ACCENT_COLOR: &'static str = "use-custom-accent-color";
+    const KEY_APP_LANGUAGE: &'static str = "app-language"; // i32
     const KEY_ITEM_TEXT_DISPLAY: &'static str = "item-text-display";
     const KEY_ITEM_CARD_STYLE: &'static str = "item-card-style";
     const KEY_MUSIC_REPEAT_MODE: &'static str = "music-repeat-mode";
@@ -99,6 +100,29 @@ impl Settings {
 
     pub fn main_theme(&self) -> i32 {
         self.int(Self::KEY_MAIN_THEME)
+    }
+
+    pub fn app_language(&self) -> i32 {
+        self.int(Self::KEY_APP_LANGUAGE)
+    }
+
+    pub fn set_app_language(&self, app_language: i32) -> Result<(), glib::BoolError> {
+        self.set_int(Self::KEY_APP_LANGUAGE, app_language)
+    }
+
+    pub fn app_language_locale(&self) -> &'static str {
+        match self.app_language() {
+            1 => "en",
+            2 => "zh_CN",
+            3 => "zh_Hant",
+            4 => "ja",
+            5 => "fr",
+            6 => "de",
+            7 => "pt_BR",
+            8 => "ru",
+            9 => "ar",
+            _ => "",
+        }
     }
 
     pub fn set_main_theme(&self, main_theme: i32) -> Result<(), glib::BoolError> {

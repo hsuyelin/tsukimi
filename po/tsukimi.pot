@@ -520,6 +520,18 @@ msgid "This is globally effective"
 msgstr ""
 
 #: resources/ui/account_settings.ui:21
+msgid "Application Language"
+msgstr ""
+
+#: resources/ui/account_settings.ui:22
+msgid "Restart Tsukimi to apply the selected language"
+msgstr ""
+
+#: resources/ui/account_settings.ui:31
+msgid "Follow System"
+msgstr ""
+
+#: resources/ui/account_settings.ui:48
 msgid "Preferred Audio Language"
 msgstr ""
 

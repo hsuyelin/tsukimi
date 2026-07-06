@@ -554,6 +554,18 @@ msgid "This is globally effective"
 msgstr "全局有效"
 
 #: resources/ui/account_settings.ui:21
+msgid "Application Language"
+msgstr "应用语言"
+
+#: resources/ui/account_settings.ui:22
+msgid "Restart Tsukimi to apply the selected language"
+msgstr "重启 Tsukimi 以应用所选语言"
+
+#: resources/ui/account_settings.ui:31
+msgid "Follow System"
+msgstr "跟随系统"
+
+#: resources/ui/account_settings.ui:48
 msgid "Preferred Audio Language"
 msgstr "首选音频语言"
 

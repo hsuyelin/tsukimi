@@ -85,8 +85,8 @@
                 <property name="valign">start</property>
                 <property name="focusable">False</property>
                 <child>
-                  <object class="AdwHeaderBar">
-                    <property name="show-start-title-buttons">false</property>
+                  <object class="AdwHeaderBar" id="top_header_bar">
+                    <property name="show-start-title-buttons">true</property>
                     <property name="show-end-title-buttons">false</property>
                     <property name="title-widget">
                       <object class="GtkBox" />
@@ -188,14 +188,6 @@
                             <style>
                               <class name="flat" />
                               <class name="circular" />
-                            </style>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkWindowControls">
-                            <property name="side">end</property>
-                            <style>
-                              <class name="flat" />
                             </style>
                           </object>
                         </child>
