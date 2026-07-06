@@ -11,7 +11,10 @@ use crate::{
             SETTINGS,
             jellyfin_cache_path,
         },
-        mpv::tsukimi_mpv::gpu_next_supported,
+        mpv::tsukimi_mpv::{
+            gpu_next_supported,
+            gpu_next_supported_in_embedded_player,
+        },
         provider::descriptor::{
             Descriptor,
             DescriptorType,
@@ -555,7 +558,7 @@ impl AccountSettings {
         {
             imp.vo_dmabuf_wayland_row.set_visible(false);
             imp.vo_gpu_next_row.set_visible(true);
-            if SETTINGS.mpv_video_output() == 2 || !gpu_next_supported() {
+            if SETTINGS.mpv_video_output() == 2 || !gpu_next_supported_in_embedded_player() {
                 let _ = SETTINGS.set_mpv_video_output(0);
             }
         }
@@ -566,12 +569,16 @@ impl AccountSettings {
             imp.vo_dmabuf_wayland_row.set_visible(true);
         }
 
-        let supports_gpu_next = gpu_next_supported();
+        let supports_gpu_next = gpu_next_supported_in_embedded_player();
         imp.vo_gpu_next_row.set_sensitive(supports_gpu_next);
         imp.vo_gpu_next_button.set_sensitive(supports_gpu_next);
         if !supports_gpu_next {
-            imp.vo_gpu_next_row
-                .set_subtitle(&gettext("Not supported by the bundled mpv."));
+            let subtitle = if gpu_next_supported() {
+                gettext("Not supported by the embedded renderer.")
+            } else {
+                gettext("Not supported by the bundled mpv.")
+            };
+            imp.vo_gpu_next_row.set_subtitle(&subtitle);
             if SETTINGS.mpv_video_output() == 1 {
                 let _ = SETTINGS.set_mpv_video_output(0);
             }

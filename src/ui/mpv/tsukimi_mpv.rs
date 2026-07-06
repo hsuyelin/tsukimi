@@ -211,6 +211,18 @@ pub fn gpu_next_supported() -> bool {
     *GPU_NEXT_SUPPORTED
 }
 
+pub fn gpu_next_supported_in_embedded_player() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        false
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        gpu_next_supported()
+    }
+}
+
 impl TsukimiMPV {
     pub fn uses_libmpv_render_api(&self) -> bool {
         selected_video_output() == "libmpv"
@@ -602,7 +614,7 @@ fn get_full_keystr(key: u32, state: gtk::gdk::ModifierType) -> Option<String> {
 
 fn selected_video_output() -> &'static str {
     let requested = SETTINGS.mpv_video_output();
-    if requested == 1 && !gpu_next_supported() {
+    if requested == 1 && !gpu_next_supported_in_embedded_player() {
         let _ = SETTINGS.set_mpv_video_output(0);
         return "libmpv";
     }
