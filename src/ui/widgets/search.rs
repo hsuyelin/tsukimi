@@ -111,7 +111,7 @@ mod imp {
             self.parent_constructed();
             self.searchscrolled
                 .get()
-                .set_unify_size(UnifySize::Majority);
+                .set_unify_size(UnifySize::ForcePost);
             self.searchscrolled.connect_end_edge_reached(glib::clone!(
                 #[weak]
                 obj,
@@ -288,6 +288,7 @@ impl SearchPage {
         let n_items = if F {
             imp.searchscrolled.n_items()
         } else {
+            imp.searchscrolled.set_store::<true>(Vec::new());
             imp.stack.set_visible_child_name("loading");
             0
         };
