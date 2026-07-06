@@ -1,54 +1,50 @@
-name: MacOS CI
+name: macOS Bundle
+
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - 'main'
-  # schedule:
-  #   - cron: '0 4 * * *'
+  push:
+    tags:
+      - "v*"
 
 env:
   CARGO_TERM_COLOR: always
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+  TSUKIMI_RUST_TOOLCHAIN: nightly
 
 jobs:
-  build-release:
-    env:
-      RUST_BACKTRACE: full
-    strategy:
-      matrix:
-        include:
-          - arch-name: x86_64-macos
-            os: macos-latest
-            target: x86_64-apple-darwin
-            artifact: tsukimi
-            ext:
-
-    runs-on: ${{matrix.os}}
+  build:
+    name: Build macOS aarch64 app
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Dependencies
-        run: |
-          brew install gtk4
-          brew install libadwaita
-          rustup target add ${{matrix.target}}
-          cargo build --release --locked
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: aarch64-apple-darwin
 
-      - name: Make MacOS package
+      - name: Cache Cargo registry
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ". -> target"
+
+      - name: Build app bundle
         run: |
-          mkdir -p Tsukimi.app/Contents/MacOS
-          mkdir -p Tsukimi.app/Contents/Resources
-          cp share/macos/Info.plist Tsukimi.app/Contents/
-          cp share/macos/AppIcon.icns Tsukimi.app/Contents/Resources/
-          mv target/release/tsukimi Tsukimi.app/Contents/MacOS/
-          tar -czf tsukimi-x86_64-apple-darwin.tar.gz Tsukimi.app/
+          scripts/build-macos-app.sh --install-deps --skip-codesign
+
+      - name: Package artifact
+        run: |
+          mkdir -p dist/artifacts
+          tar -czf "dist/artifacts/Tsukimi-macos-aarch64.tar.gz" \
+            -C dist/macos \
+            Tsukimi.app
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{matrix.artifact}}-${{matrix.target}}
-          path: tsukimi-${{matrix.target}}.tar.gz
+          name: Tsukimi-macos-aarch64
+          path: dist/artifacts/Tsukimi-macos-aarch64.tar.gz
+          if-no-files-found: error
           compression-level: 0

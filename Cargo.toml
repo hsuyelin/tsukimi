@@ -56,6 +56,7 @@ futures-util = "0.3.31"
 itertools = "0.15.0"
 moka = { version = "0.12.15", features = ["future"] }
 glycin = { version = "3.1.0", default-features = false, features = ["gdk4", "tokio"] }
+xattr = { version = "1.6.1" }
 
 [dev-dependencies]
 cargo-husky = { version = "1", default-features = false, features = ["user-hooks"] }
@@ -69,7 +70,6 @@ build_libmpv = []                 # build libmpv automatically, provided MPV_SOU
 
 [target.'cfg(target_os = "linux")'.dependencies]
 mpris-server = "0.10"
-xattr = { version = "1.6.1" }
 gdk-x11 = { version = "0.11", package = "gdk4-x11", features = [
   "v4_18",
   "xlib",

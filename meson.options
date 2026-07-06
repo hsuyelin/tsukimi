@@ -14,3 +14,10 @@ option(
   value: 'release',
   description: 'Cargo profile to build.',
 )
+
+option(
+  'macos-bundle',
+  type: 'boolean',
+  value: false,
+  description: 'Install only runtime files that are needed inside the macOS app bundle.',
+)

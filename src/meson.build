@@ -12,6 +12,7 @@ else
 endif
 
 cargo_bin = cargo_target_dir / rust_target / meson.project_name()
+cargo_output = meson.current_build_dir() / meson.project_name()
 
 env = environment()
 
@@ -50,7 +51,7 @@ custom_target(
     output: meson.project_name(),
     console: true,
     env: env,
-    install: true,
+    install: not get_option('macos-bundle'),
     install_dir: bindir,
     command: [
         cargo,
@@ -61,6 +62,6 @@ custom_target(
         '&&',
         'cp',
         cargo_bin,
-        '@OUTPUT@',
+        cargo_output,
     ],
 )

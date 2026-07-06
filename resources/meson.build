@@ -1,5 +1,6 @@
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
 gnome = import('gnome')
+macos_bundle = get_option('macos-bundle')
 
 gnome.compile_resources(
     'tsukimi',
@@ -9,34 +10,36 @@ gnome.compile_resources(
     install_dir: pkgdatadir,
 )
 
-desktop_file = i18n.merge_file(
-    input: 'moe.tsuna.tsukimi.desktop.in',
-    output: 'moe.tsuna.tsukimi.desktop',
-    type: 'desktop',
-    po_dir: '../po',
-    install: true,
-    install_dir: join_paths(get_option('datadir'), 'applications'),
-)
+if not macos_bundle
+    desktop_file = i18n.merge_file(
+        input: 'moe.tsuna.tsukimi.desktop.in',
+        output: 'moe.tsuna.tsukimi.desktop',
+        type: 'desktop',
+        po_dir: '../po',
+        install: true,
+        install_dir: join_paths(get_option('datadir'), 'applications'),
+    )
 
-desktop_utils = find_program('desktop-file-validate', required: false)
-if desktop_utils.found()
-    test('Validate desktop file', desktop_utils, args: [desktop_file])
+    desktop_utils = find_program('desktop-file-validate', required: false)
+    if desktop_utils.found()
+        test('Validate desktop file', desktop_utils, args: [desktop_file])
+    endif
+
+    appstream_file = i18n.merge_file(
+        input: 'moe.tsuna.tsukimi.metainfo.xml.in',
+        output: 'moe.tsuna.tsukimi.metainfo.xml',
+        po_dir: '../po',
+        install: true,
+        install_dir: join_paths(get_option('datadir'), 'metainfo'),
+    )
+
+    appstreamcli = find_program('appstreamcli', required: false, disabler: true)
+    test(
+        'Validate appstream file',
+        appstreamcli,
+        args: ['validate', '--no-net', '--explain', appstream_file],
+    )
 endif
-
-appstream_file = i18n.merge_file(
-    input: 'moe.tsuna.tsukimi.metainfo.xml.in',
-    output: 'moe.tsuna.tsukimi.metainfo.xml',
-    po_dir: '../po',
-    install: true,
-    install_dir: join_paths(get_option('datadir'), 'metainfo'),
-)
-
-appstreamcli = find_program('appstreamcli', required: false, disabler: true)
-test(
-    'Validate appstream file',
-    appstreamcli,
-    args: ['validate', '--no-net', '--explain', appstream_file],
-)
 
 install_data(
     'moe.tsuna.tsukimi.gschema.xml',
@@ -52,4 +55,6 @@ if compile_schemas.found()
     )
 endif
 
-subdir('icons')
+if not macos_bundle
+    subdir('icons')
+endif

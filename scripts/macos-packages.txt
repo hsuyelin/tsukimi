@@ -1,0 +1,26 @@
+# Homebrew packages required to build Tsukimi on macOS.
+#
+# Install manually with:
+#     brew install $(grep -vE '^[[:space:]]*(#|$)' scripts/macos-packages.txt)
+
+meson
+ninja
+pkg-config
+rust
+gettext
+openssl@3
+dbus
+libepoxy
+gtk4
+libadwaita
+adwaita-icon-theme
+mpv
+libplacebo
+molten-vk
+shaderc
+vulkan-headers
+vulkan-loader
+gstreamer
+gst-plugins-base
+gst-plugins-good
+gst-plugins-bad
